@@ -50,6 +50,8 @@ def recomendar_musicas(emocao):
         })
     return sugestoes
 
+
+
 # Função principal da interface
 def interface(texto):
     emocao = detectar_emocao(texto)
@@ -60,7 +62,31 @@ def interface(texto):
         resposta += f"![Capa]({s['imagem']})\n"
         resposta += f"**{s['nome']}** - {s['artista']}\n"
         resposta += f"[🔗 Ouvir no Spotify]({s['link']})\n\n"
+    return resposta, emocao
+
+def nova_sugestao(emocao):
+    sugestoes = recomendar_musicas(emocao)
+    resposta = f"🎭 Emoção detectada: **{emocao}**\n\n🎧 Novas sugestões musicais:\n\n"
+    for s in sugestoes:
+        resposta += f"![Capa]({s['imagem']})\n"
+        resposta += f"**{s['nome']}** - {s['artista']}\n"
+        resposta += f"[🔗 Ouvir no Spotify]({s['link']})\n\n"
     return resposta
+
+with gr.Blocks() as demo:
+    estado_emocao = gr.State()
+
+    entrada = gr.Textbox(lines=3, placeholder="Como você está se sentindo hoje?")
+    saida = gr.Markdown()
+    botao_principal = gr.Button("🎧 Gerar sugestões")
+    botao_novo = gr.Button("🔄 Nova sugestão")
+
+    botao_principal.click(fn=interface, inputs=entrada, outputs=[saida, estado_emocao])
+    botao_novo.click(fn=nova_sugestao, inputs=estado_emocao, outputs=saida)
+
+demo.launch()
+    
+
 
 # Interface Gradio
 gr.Interface(
